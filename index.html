@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les Composants d'un Ordinateur</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel2: #1f2937;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --green: #10b981;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --border: #30363d;
+    --radius: 16px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BG GRID ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ══════════════════ WELCOME ══════════════════ */
+  #screen-welcome {
+    align-items: center; justify-content: center;
+    padding: 40px 20px; gap: 32px;
+  }
+  .logo-title {
+    text-align: center;
+  }
+  .logo-icon {
+    font-size: 72px; margin-bottom: 16px;
+    filter: drop-shadow(0 0 24px var(--accent));
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%,100% { filter: drop-shadow(0 0 24px var(--accent)); }
+    50% { filter: drop-shadow(0 0 48px var(--accent)); }
+  }
+  .logo-title h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(24px, 5vw, 48px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+  }
+  .logo-title p {
+    font-size: clamp(16px, 2.5vw, 22px);
+    color: var(--muted); margin-top: 8px;
+  }
+  .welcome-cards {
+    display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+    width: 100%; max-width: 900px;
+  }
+  .welcome-card {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    cursor: pointer;
+    flex: 1; min-width: 260px; max-width: 380px;
+    transition: all 0.3s ease;
+    position: relative; overflow: hidden;
+    text-align: center;
+  }
+  .welcome-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.03));
+    transition: opacity 0.3s;
+  }
+  .welcome-card:hover, .welcome-card:active {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  }
+  .welcome-card.card-drag { border-color: var(--accent); }
+  .welcome-card.card-drag:hover { box-shadow: 0 16px 48px rgba(0,212,255,0.2); }
+  .welcome-card.card-quiz { border-color: var(--accent2); }
+  .welcome-card.card-quiz:hover { box-shadow: 0 16px 48px rgba(255,107,53,0.2); }
+  .welcome-card.card-info { border-color: var(--accent3); }
+  .welcome-card.card-info:hover { box-shadow: 0 16px 48px rgba(124,58,237,0.2); }
+  .welcome-card .card-emoji { font-size: 56px; margin-bottom: 16px; }
+  .welcome-card h2 {
+    font-family: 'Orbitron', sans-serif; font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .welcome-card.card-drag h2 { color: var(--accent); }
+  .welcome-card.card-quiz h2 { color: var(--accent2); }
+  .welcome-card.card-info h2 { color: var(--accent3); }
+  .welcome-card p { color: var(--muted); font-size: 15px; line-height: 1.5; }
+  .welcome-card .card-badge {
+    position: absolute; top: 14px; right: 14px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 700;
+  }
+  .card-drag .card-badge { background: rgba(0,212,255,0.15); color: var(--accent); }
+  .card-quiz .card-badge { background: rgba(255,107,53,0.15); color: var(--accent2); }
+  .card-info .card-badge { background: rgba(124,58,237,0.15); color: var(--accent3); }
+
+  /* ══════════════════ HEADER ══════════════════ */
+  .app-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 24px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .btn-back {
+    background: var(--panel2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px;
+    padding: 10px 18px; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Nunito', sans-serif;
+    min-width: 60px; min-height: 44px;
+  }
+  .btn-back:hover { background: var(--border); }
+  .app-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(14px, 3vw, 20px);
+    flex: 1;
+  }
+
+  /* ══════════════════ MODULE 1 — DRAG & DROP ══════════════════ */
+  #screen-drag { padding-bottom: 40px; }
+  .drag-layout {
+    display: flex; gap: 20px; padding: 20px;
+    flex-wrap: wrap; flex: 1;
+    justify-content: center;
+  }
+  /* Components list */
+  .components-panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    flex: 0 0 auto; width: 280px;
+  }
+  .components-panel h3 {
+    font-family: 'Orbitron', sans-serif; font-size: 14px;
+    color: var(--accent); margin-bottom: 16px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .component-cards-list {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .comp-card {
+    background: var(--panel2); border: 2px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    cursor: grab; transition: all 0.2s;
+    display: flex; align-items: center; gap: 12px;
+    user-select: none; touch-action: none;
+    min-height: 60px;
+  }
+  .comp-card:hover { border-color: var(--accent); transform: translateX(4px); }
+  .comp-card.dragging { opacity: 0.4; transform: scale(0.95); }
+  .comp-card.placed { opacity: 0.3; pointer-events: none; border-style: dashed; }
+  .comp-icon { font-size: 28px; flex-shrink: 0; }
+  .comp-name { font-weight: 800; font-size: 15px; }
+  .comp-hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Tower */
+  .tower-panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    flex: 1; min-width: 320px; max-width: 600px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .tower-panel h3 {
+    font-family: 'Orbitron', sans-serif; font-size: 14px;
+    color: var(--accent2); text-transform: uppercase; letter-spacing: 1px;
+  }
+  .tower-svg-wrap { width: 100%; max-width: 420px; }
+  svg.tower { width: 100%; height: auto; }
+
+  /* Drop zones */
+  .drop-zone {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .drop-zone rect.zone-bg { transition: fill 0.2s, stroke 0.2s; }
+  .drop-zone.drag-over rect.zone-bg { fill: rgba(0,212,255,0.2) !important; stroke: var(--accent) !important; }
+  .drop-zone.correct rect.zone-bg { fill: rgba(16,185,129,0.25) !important; stroke: var(--green) !important; }
+  .drop-zone.wrong rect.zone-bg { animation: shake 0.4s ease; }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  /* Feedback panel */
+  .drag-feedback {
+    background: var(--panel2); border-radius: 12px; padding: 16px;
+    width: 100%; font-size: 15px; line-height: 1.5; min-height: 60px;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    text-align: center;
+  }
+  .drag-feedback.success { border-color: var(--green); color: var(--green); }
+  .drag-feedback.error { border-color: var(--red); color: var(--red); }
+
+  /* Progress drag */
+  .drag-progress-wrap { width: 100%; }
+  .drag-progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--muted); margin-bottom: 6px;
+  }
+  .drag-progress-bar {
+    height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+  }
+  .drag-progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 4px; transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* Btn reset */
+  .btn-reset {
+    background: var(--panel2); border: 2px solid var(--accent2);
+    color: var(--accent2); border-radius: 10px;
+    padding: 12px 24px; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Nunito', sans-serif;
+    min-height: 52px;
+  }
+  .btn-reset:hover { background: rgba(255,107,53,0.1); }
+
+  /* Victory */
+  .victory-banner {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.85);
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 20px;
+    text-align: center; padding: 20px;
+  }
+  .victory-banner.show { display: flex; animation: fadeIn 0.4s ease; }
+  .victory-banner h2 {
+    font-family: 'Orbitron', sans-serif; font-size: clamp(24px, 5vw, 40px);
+    color: var(--yellow);
+    text-shadow: 0 0 40px var(--yellow);
+  }
+  .victory-banner p { font-size: 18px; color: var(--muted); max-width: 480px; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: white; border: none; border-radius: 12px;
+    padding: 16px 32px; font-size: 18px; font-weight: 800;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Nunito', sans-serif;
+    min-height: 60px; min-width: 200px;
+  }
+  .btn-primary:hover { transform: scale(1.05); box-shadow: 0 8px 24px rgba(0,212,255,0.3); }
+
+  /* ══════════════════ MODULE 2 — QUIZ ══════════════════ */
+  #screen-quiz { padding-bottom: 40px; }
+  .quiz-container { padding: 24px; max-width: 800px; margin: 0 auto; width: 100%; }
+  .quiz-progress-wrap { margin-bottom: 24px; }
+  .quiz-progress-top {
+    display: flex; justify-content: space-between;
+    font-size: 14px; color: var(--muted); margin-bottom: 8px;
+  }
+  .quiz-progress-bar {
+    height: 10px; background: var(--border); border-radius: 5px; overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent2), var(--yellow));
+    border-radius: 5px; transition: width 0.5s ease;
+  }
+  .quiz-question-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px;
+    margin-bottom: 20px;
+  }
+  .quiz-q-num {
+    font-size: 13px; color: var(--accent2); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+  }
+  .quiz-question {
+    font-size: clamp(18px, 3vw, 24px); font-weight: 800; line-height: 1.4;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 12px; }
+  .quiz-option {
+    background: var(--panel2); border: 2px solid var(--border);
+    border-radius: 12px; padding: 16px 20px;
+    cursor: pointer; transition: all 0.2s;
+    font-size: clamp(15px, 2.5vw, 18px); font-weight: 600;
+    display: flex; align-items: center; gap: 14px;
+    min-height: 60px; text-align: left;
+    font-family: 'Nunito', sans-serif;
+  }
+  .quiz-option:hover:not(.disabled) { border-color: var(--accent2); transform: translateX(4px); }
+  .quiz-option.correct { border-color: var(--green); background: rgba(16,185,129,0.15); color: var(--green); }
+  .quiz-option.wrong { border-color: var(--red); background: rgba(239,68,68,0.15); color: var(--red); }
+  .quiz-option.disabled { pointer-events: none; }
+  .option-letter {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--border); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; flex-shrink: 0;
+    font-family: 'Orbitron', sans-serif;
+  }
+  .quiz-option.correct .option-letter { background: var(--green); color: white; }
+  .quiz-option.wrong .option-letter { background: var(--red); color: white; }
+  .quiz-explanation {
+    background: var(--panel2); border-radius: 10px; padding: 14px 18px;
+    font-size: 15px; color: var(--muted); margin-top: 12px;
+    border-left: 3px solid var(--accent);
+    display: none; line-height: 1.5;
+  }
+  .quiz-explanation.show { display: block; animation: slideDown 0.3s ease; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .btn-next {
+    background: linear-gradient(135deg, var(--accent2), var(--yellow));
+    color: white; border: none; border-radius: 12px;
+    padding: 16px 32px; font-size: 18px; font-weight: 800;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Nunito', sans-serif;
+    min-height: 60px; width: 100%;
+    display: none; margin-top: 8px;
+  }
+  .btn-next.show { display: block; animation: fadeIn 0.3s ease; }
+  .btn-next:hover { transform: scale(1.02); }
+
+  /* Score final */
+  .quiz-score-screen {
+    display: none; text-align: center; padding: 40px 20px;
+    flex-direction: column; align-items: center; gap: 24px;
+  }
+  .quiz-score-screen.show { display: flex; animation: fadeIn 0.4s ease; }
+  .score-circle {
+    width: 160px; height: 160px; border-radius: 50%;
+    background: conic-gradient(var(--accent2) 0deg, var(--yellow) 180deg, var(--border) 180deg);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; margin: 0 auto;
+  }
+  .score-inner {
+    width: 130px; height: 130px; border-radius: 50%;
+    background: var(--bg); display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .score-number {
+    font-family: 'Orbitron', sans-serif; font-size: 36px; font-weight: 900;
+    color: var(--accent2);
+  }
+  .score-total { font-size: 14px; color: var(--muted); }
+  .score-message {
+    font-family: 'Orbitron', sans-serif; font-size: clamp(18px, 4vw, 28px);
+  }
+  .score-emoji { font-size: 64px; }
+
+  /* ══════════════════ MODULE 3 — FICHES INFO ══════════════════ */
+  #screen-info { padding-bottom: 40px; }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px; padding: 24px;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .info-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+    transition: all 0.3s; cursor: pointer;
+  }
+  .info-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--accent3); }
+  .info-card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .info-emoji { font-size: 48px; }
+  .info-card h3 {
+    font-family: 'Orbitron', sans-serif; font-size: 16px; color: var(--accent3);
+  }
+  .info-card .info-abbr { font-size: 13px; color: var(--muted); }
+  .info-card .info-role {
+    font-size: 15px; font-weight: 700; margin-bottom: 8px; line-height: 1.4;
+  }
+  .info-card .info-analogy {
+    background: var(--panel2); border-radius: 8px; padding: 10px 14px;
+    font-size: 14px; color: var(--muted); border-left: 3px solid var(--accent3);
+    margin-top: 10px; line-height: 1.5;
+  }
+  .info-location {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 20px; padding: 4px 12px; font-size: 12px;
+    color: var(--accent3); margin-top: 10px; font-weight: 700;
+  }
+
+  /* ══════════════════ UTILS ══════════════════ */
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .confetti { position: fixed; pointer-events: none; z-index: 300; }
+
+  /* ── Fullscreen btn ── */
+  .btn-fullscreen {
+    background: var(--panel2); border: 1px solid var(--border);
+    color: var(--muted); border-radius: 8px; padding: 8px 14px;
+    font-size: 18px; cursor: pointer; transition: all 0.2s;
+    min-height: 44px;
+  }
+  .btn-fullscreen:hover { color: var(--text); border-color: var(--accent); }
+
+  /* Touch drag ghost */
+  .touch-ghost {
+    position: fixed; pointer-events: none; z-index: 1000;
+    background: var(--panel2); border: 2px solid var(--accent);
+    border-radius: 12px; padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0.9; transform: translate(-50%, -50%);
+    min-height: 60px; font-weight: 800; font-size: 15px;
+  }
+
+  @media (max-width: 700px) {
+    .drag-layout { flex-direction: column; }
+    .components-panel { width: 100%; }
+    .tower-panel { min-width: unset; width: 100%; }
+    .info-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ WELCOME ═══════════════ -->
+<div id="screen-welcome" class="screen active">
+  <div class="logo-title">
+    <div class="logo-icon">🖥️</div>
+    <h1>Les Composants<br>d'un Ordinateur</h1>
+    <p>Apprends en t'amusant !</p>
+  </div>
+  <div class="welcome-cards">
+    <div class="welcome-card card-drag" onclick="showScreen('drag')">
+      <span class="card-badge">Activité 1</span>
+      <div class="card-emoji">🧩</div>
+      <h2>Construis ta tour</h2>
+      <p>Glisse chaque composant au bon endroit dans la tour de ton ordinateur</p>
+    </div>
+    <div class="welcome-card card-quiz" onclick="showScreen('quiz'); initQuiz()">
+      <span class="card-badge">Activité 2</span>
+      <div class="card-emoji">🧠</div>
+      <h2>Quiz des composants</h2>
+      <p>Teste tes connaissances sur les fonctions et rôles de chaque pièce</p>
+    </div>
+    <div class="welcome-card card-info" onclick="showScreen('info')">
+      <span class="card-badge">Fiches</span>
+      <div class="card-emoji">📚</div>
+      <h2>Fiches composants</h2>
+      <p>Découvre le rôle de chaque composant avec des exemples simples</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DRAG & DROP ═══════════════ -->
+<div id="screen-drag" class="screen">
+  <div class="app-header">
+    <button class="btn-back" onclick="showScreen('welcome')">← Retour</button>
+    <h2 style="color:var(--accent)">🧩 Construis ta tour</h2>
+    <button class="btn-fullscreen" onclick="toggleFullscreen()" title="Plein écran">⛶</button>
+  </div>
+
+  <div class="drag-layout">
+    <!-- Panel gauche -->
+    <div class="components-panel">
+      <h3>📦 Composants</h3>
+      <div class="component-cards-list" id="comp-list">
+        <!-- Injecté par JS -->
+      </div>
+      <div style="margin-top:16px">
+        <div class="drag-progress-wrap">
+          <div class="drag-progress-label">
+            <span>Progression</span>
+            <span id="drag-count">0 / 8</span>
+          </div>
+          <div class="drag-progress-bar">
+            <div class="drag-progress-fill" id="drag-bar"></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-reset" style="margin-top:16px;width:100%" onclick="resetDrag()">🔄 Recommencer</button>
+    </div>
+
+    <!-- Panel tour -->
+    <div class="tower-panel">
+      <h3>🗄️ Tour de l'ordinateur</h3>
+
+      <div class="tower-svg-wrap">
+        <svg class="tower" viewBox="0 0 380 520" xmlns="http://www.w3.org/2000/svg">
+          <!-- Tour (boîtier) -->
+          <rect x="30" y="20" width="320" height="480" rx="18" fill="#1a2332" stroke="#30363d" stroke-width="3"/>
+          <!-- Façade légère -->
+          <rect x="30" y="20" width="50" height="480" rx="0" fill="#151d2b" stroke="none"/>
+          <!-- Bouton power -->
+          <circle cx="55" cy="50" r="10" fill="#00d4ff" opacity="0.8"/>
+          <circle cx="55" cy="50" r="6" fill="#0099bb"/>
+          <!-- LED -->
+          <circle cx="55" cy="75" r="4" fill="#10b981" opacity="0.9"/>
+          <!-- Lecteur -->
+          <rect x="35" y="100" width="40" height="8" rx="3" fill="#0d1117" stroke="#30363d"/>
+
+          <!-- Zone Carte mère -->
+          <g class="drop-zone" id="zone-motherboard" data-comp="motherboard" onclick="handleZoneClick('motherboard')">
+            <rect class="zone-bg" x="95" y="30" width="245" height="150" rx="10" fill="rgba(124,58,237,0.08)" stroke="#30363d" stroke-width="2" stroke-dasharray="6,3"/>
+            <text x="217" y="55" text-anchor="middle" fill="#8b949e" font-size="11" font-family="Nunito,sans-serif" font-weight="700">CARTE MÈRE</text>
+            <text x="217" y="70" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Nunito,sans-serif">↕ Glisse ici</text>
+            <!-- Slots CPU zone -->
+            <rect x="110" y="80" width="80" height="80" rx="6" fill="rgba(0,0,0,0.2)" stroke="#30363d" stroke-dasharray="4,2"/>
+            <text x="150" y="125" text-anchor="middle" fill="#555" font-size="10" font-family="Nunito,sans-serif">CPU</text>
+            <!-- Slots RAM zone -->
+            <rect x="210" y="80" width="120" height="25" rx="4" fill="rgba(0,0,0,0.2)" stroke="#30363d" stroke-dasharray="4,2"/>
+            <text x="270" y="97" text-anchor="middle" fill="#555" font-size="10" font-family="Nunito,sans-serif">RAM</text>
+            <rect x="210" y="115" width="120" height="25" rx="4" fill="rgba(0,0,0,0.2)" stroke="#30363d" stroke-dasharray="4,2"/>
+            <text x="270" y="132" text-anchor="middle" fill="#555" font-size="10" font-family="Nunito,sans-serif">RAM</text>
+          </g>
+
+          <!-- Zone CPU -->
+          <g class="drop-zone" id="zone-cpu" data-comp="cpu" onclick="handleZoneClick('cpu')">
+            <rect class="zone-bg" x="110" y="80" width="80" height="80" rx="6" fill="rgba(0,212,255,0.06)" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4,2"/>
+          </g>
+
+          <!-- Zone RAM slot 1 -->
+          <g class="drop-zone" id="zone-ram" data-comp="ram" onclick="handleZoneClick('ram')">
+            <rect class="zone-bg" x="210" y="80" width="120" height="60" rx="4" fill="rgba(16,185,129,0.06)" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4,2"/>
+          </g>
+
+          <!-- Zone GPU -->
+          <g class="drop-zone" id="zone-gpu" data-comp="gpu" onclick="handleZoneClick('gpu')">
+            <rect class="zone-bg" x="95" y="195" width="175" height="70" rx="8" fill="rgba(255,107,53,0.06)" stroke="#30363d" stroke-width="2" stroke-dasharray="6,3"/>
+            <text x="182" y="220" text-anchor="middle" fill="#8b949e" font-size="11" font-family="Nunito,sans-serif" font-weight="700">CARTE GRAPHIQUE</text>
+            <text x="182" y="235" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Nunito,sans-serif">↕ Glisse ici</text>
+          </g>
+
+          <!-- Zone SSD -->
+          <g class="drop-zone" id="zone-ssd" data-comp="ssd" onclick="handleZoneClick('ssd')">
+            <rect class="zone-bg" x="95" y="280" width="120" height="55" rx="8" fill="rgba(245,158,11,0.06)" stroke="#30363d" stroke-width="2" stroke-dasharray="6,3"/>
+            <text x="155" y="305" text-anchor="middle" fill="#8b949e" font-size="11" font-family="Nunito,sans-serif" font-weight="700">DISQUE SSD</text>
+            <text x="155" y="320" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Nunito,sans-serif">↕ Glisse ici</text>
+          </g>
+
+          <!-- Zone Réseau -->
+          <g class="drop-zone" id="zone-network" data-comp="network" onclick="handleZoneClick('network')">
+            <rect class="zone-bg" x="230" y="280" width="110" height="55" rx="8" fill="rgba(16,185,129,0.06)" stroke="#30363d" stroke-width="2" stroke-dasharray="6,3"/>
+            <text x="285" y="305" text-anchor="middle" fill="#8b949e" font-size="11" font-family="Nunito,sans-serif" font-weight="700">CARTE RÉSEAU</text>
+            <text x="285" y="320" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Nunito,sans-serif">↕ Glisse ici</text>
+          </g>
+
+          <!-- Zone Ventilateur -->
+          <g class="drop-zone" id="zone-fan" data-comp="fan" onclick="handleZoneClick('fan')">
+            <rect class="zone-bg" x="95" y="350" width="100" height="80" rx="8" fill="rgba(0,212,255,0.06)" stroke="#30363d" stroke-width="2" stroke-dasharray="6,3"/>
+            <text x="145" y="385" text-anchor="middle" fill="#8b949e" font-size="11" font-family="Nunito,sans-serif" font-weight="700">VENTILATEUR</text>
+            <text x="145" y="400" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Nunito,sans-serif">↕ Glisse ici</text>
+          </g>
+
+          <!-- Zone Alimentation -->
+          <g class="drop-zone" id="zone-psu" data-comp="psu" onclick="handleZoneClick('psu')">
+            <rect class="zone-bg" x="210" y="350" width="130" height="120" rx="8" fill="rgba(245,158,11,0.06)" stroke="#30363d" stroke-width="2" stroke-dasharray="6,3"/>
+            <text x="275" y="405" text-anchor="middle" fill="#8b949e" font-size="11" font-family="Nunito,sans-serif" font-weight="700">ALIMENTATION</text>
+            <text x="275" y="420" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Nunito,sans-serif">↕ Glisse ici</text>
+          </g>
+
+          <!-- Câbles décoratifs -->
+          <path d="M 140 160 Q 200 175 210 190" stroke="#1e3a4a" stroke-width="2" fill="none" stroke-dasharray="3,2"/>
+          <path d="M 200 160 Q 240 200 240 280" stroke="#1e3a4a" stroke-width="2" fill="none" stroke-dasharray="3,2"/>
+        </svg>
+      </div>
+
+      <div class="drag-feedback" id="drag-feedback">
+        🎯 Glisse un composant sur la zone correspondante dans la tour !
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Victory banner drag -->
+<div class="victory-banner" id="victory-drag">
+  <div style="font-size:80px">🎉</div>
+  <h2>Bravo ! Tour complète !</h2>
+  <p>Tu as placé tous les composants au bon endroit. Tu connais maintenant l'intérieur d'un ordinateur !</p>
+  <button class="btn-primary" onclick="document.getElementById('victory-drag').classList.remove('show'); resetDrag()">🔄 Recommencer</button>
+  <button class="btn-primary" style="background:linear-gradient(135deg,var(--accent2),var(--yellow))" onclick="document.getElementById('victory-drag').classList.remove('show'); showScreen('quiz'); initQuiz()">🧠 Passer au Quiz !</button>
+</div>
+
+<!-- ═══════════════ QUIZ ═══════════════ -->
+<div id="screen-quiz" class="screen">
+  <div class="app-header">
+    <button class="btn-back" onclick="showScreen('welcome')">← Retour</button>
+    <h2 style="color:var(--accent2)">🧠 Quiz des composants</h2>
+    <button class="btn-fullscreen" onclick="toggleFullscreen()">⛶</button>
+  </div>
+
+  <div class="quiz-container">
+    <div class="quiz-progress-wrap">
+      <div class="quiz-progress-top">
+        <span id="quiz-progress-label">Question 1 / 10</span>
+        <span id="quiz-score-live">Score : 0 ⭐</span>
+      </div>
+      <div class="quiz-progress-bar">
+        <div class="quiz-progress-fill" id="quiz-bar"></div>
+      </div>
+    </div>
+
+    <div id="quiz-main">
+      <div class="quiz-question-card">
+        <div class="quiz-q-num" id="q-num">Question 1</div>
+        <div class="quiz-question" id="q-text"></div>
+      </div>
+      <div class="quiz-options" id="q-options"></div>
+      <div class="quiz-explanation" id="q-explanation"></div>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">Question suivante →</button>
+    </div>
+
+    <div class="quiz-score-screen" id="quiz-score">
+      <div class="score-emoji" id="score-emoji">🎉</div>
+      <div class="score-circle" id="score-circle">
+        <div class="score-inner">
+          <div class="score-number" id="score-num">0</div>
+          <div class="score-total">/ 10</div>
+        </div>
+      </div>
+      <div class="score-message" id="score-msg"></div>
+      <p id="score-sub" style="color:var(--muted);max-width:480px;text-align:center;line-height:1.6"></p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <button class="btn-primary" onclick="initQuiz()">🔄 Recommencer</button>
+        <button class="btn-primary" style="background:linear-gradient(135deg,var(--accent3),var(--accent))" onclick="showScreen('info')">📚 Voir les fiches</button>
+        <button class="btn-primary" style="background:linear-gradient(135deg,var(--accent2),var(--yellow))" onclick="showScreen('welcome')">🏠 Accueil</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ FICHES INFO ═══════════════ -->
+<div id="screen-info" class="screen">
+  <div class="app-header">
+    <button class="btn-back" onclick="showScreen('welcome')">← Retour</button>
+    <h2 style="color:var(--accent3)">📚 Fiches composants</h2>
+    <button class="btn-fullscreen" onclick="toggleFullscreen()">⛶</button>
+  </div>
+  <div class="info-grid" id="info-grid">
+    <!-- Injecté par JS -->
+  </div>
+</div>
+
+<!-- Touch ghost for drag -->
+<div class="touch-ghost" id="touch-ghost" style="display:none">
+  <span id="ghost-icon">🔲</span>
+  <span id="ghost-name">Composant</span>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  DONNÉES
+// ══════════════════════════════════════════
+const COMPONENTS = {
+  cpu: {
+    name: "Processeur",
+    abbr: "CPU — Central Processing Unit",
+    icon: "🧠",
+    color: "#00d4ff",
+    hint: "Le cerveau",
+    role: "Exécute toutes les instructions et calculs de l'ordinateur",
+    analogy: "💡 C'est comme le cerveau de l'ordinateur : il pense et prend toutes les décisions !",
+    location: "Sur la carte mère, sous le ventilateur"
+  },
+  ram: {
+    name: "Mémoire vive",
+    abbr: "RAM — Random Access Memory",
+    icon: "💾",
+    color: "#10b981",
+    hint: "Mémoire rapide",
+    role: "Stocke temporairement les données des programmes en cours d'utilisation",
+    analogy: "💡 C'est comme le bureau de travail : plus il est grand, plus tu peux avoir de choses en même temps !",
+    location: "Dans les slots de la carte mère, à côté du CPU"
+  },
+  motherboard: {
+    name: "Carte mère",
+    abbr: "Motherboard",
+    icon: "🔌",
+    color: "#7c3aed",
+    hint: "Connecte tout",
+    role: "Relie tous les composants entre eux et permet leur communication",
+    analogy: "💡 C'est comme les routes d'une ville : elle connecte tous les quartiers (composants) ensemble !",
+    location: "Fixée contre le panneau latéral du boîtier"
+  },
+  ssd: {
+    name: "Disque SSD",
+    abbr: "Solid State Drive",
+    icon: "💿",
+    color: "#f59e0b",
+    hint: "Stockage",
+    role: "Stocke de façon permanente le système d'exploitation, les fichiers et les jeux",
+    analogy: "💡 C'est comme un classeur géant : tes fichiers y restent même quand tu éteins l'ordinateur !",
+    location: "Dans les baies de stockage du boîtier"
+  },
+  gpu: {
+    name: "Carte graphique",
+    abbr: "GPU — Graphics Processing Unit",
+    icon: "🖼️",
+    color: "#ff6b35",
+    hint: "Affiche les images",
+    role: "Calcule et affiche les images, vidéos et graphismes 3D sur l'écran",
+    analogy: "💡 C'est comme un artiste super rapide qui dessine chaque image de ce que tu vois à l'écran !",
+    location: "Dans le slot PCI-Express de la carte mère"
+  },
+  psu: {
+    name: "Alimentation",
+    abbr: "PSU — Power Supply Unit",
+    icon: "⚡",
+    color: "#f59e0b",
+    hint: "Fournit l'énergie",
+    role: "Convertit l'électricité du secteur en courant utilisable par chaque composant",
+    analogy: "💡 C'est comme le cœur de l'ordinateur : il pompe l'énergie vers tous les organes !",
+    location: "En bas ou en haut du boîtier, à l'arrière"
+  },
+  network: {
+    name: "Carte réseau",
+    abbr: "NIC — Network Interface Card",
+    icon: "📡",
+    color: "#10b981",
+    hint: "Connexion internet",
+    role: "Permet à l'ordinateur de se connecter à internet et aux réseaux locaux",
+    analogy: "💡 C'est comme la porte d'entrée de l'ordinateur vers internet !",
+    location: "Dans un slot d'extension de la carte mère ou intégrée"
+  },
+  fan: {
+    name: "Ventilateur",
+    abbr: "Cooler / Fan",
+    icon: "🌀",
+    color: "#00d4ff",
+    hint: "Refroidissement",
+    role: "Évacue la chaleur produite par le processeur et les autres composants",
+    analogy: "💡 C'est comme un climatiseur : il garde l'ordinateur au frais pour qu'il ne surchauffe pas !",
+    location: "Sur le CPU et dans les parois du boîtier"
+  }
+};
+
+const QUIZ_QUESTIONS = [
+  {
+    q: "Quel composant est souvent appelé 'le cerveau de l'ordinateur' ?",
+    opts: ["La carte graphique", "Le processeur (CPU)", "La mémoire vive (RAM)", "L'alimentation"],
+    answer: 1,
+    expl: "Le processeur (CPU) est le cerveau de l'ordinateur : il exécute toutes les instructions et effectue les calculs."
+  },
+  {
+    q: "La mémoire vive (RAM) sert à…",
+    opts: ["Stocker tes fichiers pour toujours", "Afficher les images sur l'écran", "Garder en mémoire les programmes en cours", "Alimenter l'ordinateur en électricité"],
+    answer: 2,
+    expl: "La RAM conserve temporairement les données des programmes ouverts. Quand tu éteins l'ordinateur, ces données disparaissent !"
+  },
+  {
+    q: "Quel composant reste actif et garde tes fichiers même quand tu éteins l'ordinateur ?",
+    opts: ["La RAM", "Le ventilateur", "Le disque SSD", "La carte réseau"],
+    answer: 2,
+    expl: "Le disque SSD (ou disque dur) stocke de façon permanente ton système, tes fichiers et tes jeux."
+  },
+  {
+    q: "La carte mère a pour rôle de…",
+    opts: ["Calculer les images 3D", "Relier tous les composants entre eux", "Refroidir le processeur", "Stocker les données"],
+    answer: 1,
+    expl: "La carte mère est l'élément central qui connecte tous les composants et permet leur communication."
+  },
+  {
+    q: "Quel composant est indispensable pour jouer à des jeux vidéo avec de beaux graphismes ?",
+    opts: ["L'alimentation (PSU)", "La carte réseau", "La carte graphique (GPU)", "Le ventilateur"],
+    answer: 2,
+    expl: "La carte graphique (GPU) calcule et affiche les images 3D des jeux. Plus elle est puissante, plus les graphismes sont beaux !"
+  },
+  {
+    q: "Où se branche le processeur (CPU) dans l'ordinateur ?",
+    opts: ["Dans un slot PCI-Express", "Dans une baie de stockage", "Sur la carte mère", "Sur l'alimentation"],
+    answer: 2,
+    expl: "Le CPU se branche directement sur la carte mère, dans un emplacement spécifique appelé 'socket'."
+  },
+  {
+    q: "À quoi sert l'alimentation (PSU) ?",
+    opts: ["À connecter l'ordinateur à internet", "À convertir l'électricité pour alimenter les composants", "À stocker les fichiers", "À afficher les images"],
+    answer: 1,
+    expl: "L'alimentation (PSU) transforme l'électricité du secteur en courant adapté à chaque composant."
+  },
+  {
+    q: "Pourquoi y a-t-il des ventilateurs dans un ordinateur ?",
+    opts: ["Pour faire du bruit", "Pour alimenter les composants", "Pour évacuer la chaleur et éviter la surchauffe", "Pour se connecter à internet"],
+    answer: 2,
+    expl: "Les ventilateurs refroidissent les composants, notamment le CPU. Sans refroidissement, l'ordinateur surchaufferait et s'abîmerait !"
+  },
+  {
+    q: "Quel composant permet à l'ordinateur de se connecter à internet ?",
+    opts: ["Le processeur (CPU)", "La mémoire vive (RAM)", "La carte graphique", "La carte réseau"],
+    answer: 3,
+    expl: "La carte réseau (NIC) est l'interface qui permet à l'ordinateur de communiquer avec internet et les autres appareils du réseau."
+  },
+  {
+    q: "Si tu veux que ton ordinateur puisse faire tourner plusieurs programmes en même temps sans ralentir, quel composant faut-il améliorer en priorité ?",
+    opts: ["Le ventilateur", "L'alimentation", "La carte réseau", "La mémoire vive (RAM)"],
+    answer: 3,
+    expl: "Plus la RAM est grande, plus l'ordinateur peut gérer de programmes simultanément sans ralentir. C'est la première chose à augmenter pour la fluidité !"
+  }
+];
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+// ══════════════════════════════════════════
+//  MODULE 1 — DRAG & DROP
+// ══════════════════════════════════════════
+let dragState = {
+  dragging: null,
+  placed: {},
+  count: 0
+};
+
+function initDrag() {
+  dragState = { dragging: null, placed: {}, count: 0 };
+  renderCompList();
+  resetZones();
+  updateDragProgress();
+  document.getElementById('drag-feedback').textContent = '🎯 Glisse un composant sur la zone correspondante dans la tour !';
+  document.getElementById('drag-feedback').className = 'drag-feedback';
+}
+
+function renderCompList() {
+  const list = document.getElementById('comp-list');
+  list.innerHTML = '';
+  Object.entries(COMPONENTS).forEach(([id, comp]) => {
+    const card = document.createElement('div');
+    card.className = 'comp-card';
+    card.id = 'comp-' + id;
+    card.draggable = true;
+    card.dataset.comp = id;
+    card.innerHTML = `<span class="comp-icon">${comp.icon}</span><div><div class="comp-name">${comp.name}</div><div class="comp-hint">${comp.hint}</div></div>`;
+
+    // Desktop drag
+    card.addEventListener('dragstart', e => {
+      dragState.dragging = id;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+    });
+
+    // Touch drag
+    card.addEventListener('touchstart', handleTouchStart, { passive: false });
+    card.addEventListener('touchmove', handleTouchMove, { passive: false });
+    card.addEventListener('touchend', handleTouchEnd);
+
+    list.appendChild(card);
+  });
+}
+
+function resetZones() {
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.className = 'drop-zone';
+    const zoneId = z.dataset.comp;
+    const comp = COMPONENTS[zoneId];
+    if (comp) {
+      // Reset zone text
+      const texts = z.querySelectorAll('text');
+      texts.forEach(t => { t.style.display = ''; });
+    }
+  });
+}
+
+// Desktop drag over zones
+document.addEventListener('DOMContentLoaded', () => {
+  initDrag();
+  buildInfoGrid();
+
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('drag-over');
+    });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      handleDrop(zone.dataset.comp);
+    });
+  });
+});
+
+function handleZoneClick(zoneId) {
+  if (dragState.dragging && !dragState.placed[zoneId]) {
+    handleDrop(zoneId);
+  }
+}
+
+function handleDrop(zoneId) {
+  if (!dragState.dragging) return;
+  const compId = dragState.dragging;
+  dragState.dragging = null;
+
+  const compCard = document.getElementById('comp-' + compId);
+  if (compCard) compCard.classList.remove('dragging');
+
+  if (dragState.placed[zoneId]) {
+    setFeedback('⚠️ Cet emplacement est déjà occupé !', 'error');
+    return;
+  }
+
+  if (compId === zoneId || (zoneId === 'motherboard' && compId === 'motherboard') ||
+      (zoneId === 'cpu' && compId === 'cpu') || (zoneId === 'ram' && compId === 'ram') ||
+      (zoneId === 'gpu' && compId === 'gpu') || (zoneId === 'ssd' && compId === 'ssd') ||
+      (zoneId === 'psu' && compId === 'psu') || (zoneId === 'network' && compId === 'network') ||
+      (zoneId === 'fan' && compId === 'fan')) {
+    // Correct
+    placeCorrect(compId, zoneId);
+  } else {
+    // Wrong
+    const zone = document.getElementById('zone-' + zoneId);
+    if (zone) {
+      zone.classList.add('wrong');
+      setTimeout(() => zone.classList.remove('wrong'), 500);
+    }
+    const comp = COMPONENTS[compId];
+    setFeedback(`❌ Non ! ${comp.icon} ${comp.name} ne va pas ici. Cherche son emplacement correct !`, 'error');
+  }
+}
+
+function placeCorrect(compId, zoneId) {
+  dragState.placed[zoneId] = compId;
+  dragState.count++;
+
+  const zone = document.getElementById('zone-' + zoneId);
+  if (zone) zone.classList.add('correct');
+
+  // Mark card as placed
+  const card = document.getElementById('comp-' + compId);
+  if (card) card.classList.add('placed');
+
+  // Add component icon to zone
+  const zone2 = document.getElementById('zone-' + zoneId);
+  if (zone2) {
+    const comp = COMPONENTS[compId];
+    const txt = zone2.querySelector('text');
+    if (txt) {
+      txt.textContent = comp.icon + ' ' + comp.name;
+      txt.setAttribute('fill', '#10b981');
+      txt.setAttribute('font-weight', '800');
+      txt.setAttribute('font-size', '13');
+      const t2 = zone2.querySelectorAll('text')[1];
+      if (t2) t2.textContent = '✓ Correct !';
+    }
+  }
+
+  const comp = COMPONENTS[compId];
+  setFeedback(`✅ Excellent ! ${comp.icon} ${comp.name} — ${comp.role}`, 'success');
+  updateDragProgress();
+
+  if (dragState.count === 8) {
+    setTimeout(() => {
+      document.getElementById('victory-drag').classList.add('show');
+      launchConfetti();
+    }, 600);
+  }
+}
+
+function setFeedback(msg, type) {
+  const el = document.getElementById('drag-feedback');
+  el.textContent = msg;
+  el.className = 'drag-feedback ' + (type || '');
+}
+
+function updateDragProgress() {
+  const n = dragState.count;
+  document.getElementById('drag-count').textContent = n + ' / 8';
+  document.getElementById('drag-bar').style.width = (n / 8 * 100) + '%';
+}
+
+function resetDrag() {
+  initDrag();
+}
+
+// ── Touch drag ──
+let touchComp = null;
+const ghost = document.getElementById('touch-ghost');
+
+function handleTouchStart(e) {
+  const card = e.currentTarget;
+  touchComp = card.dataset.comp;
+  dragState.dragging = touchComp;
+  const comp = COMPONENTS[touchComp];
+  document.getElementById('ghost-icon').textContent = comp.icon;
+  document.getElementById('ghost-name').textContent = comp.name;
+  ghost.style.display = 'flex';
+  moveTouchGhost(e.touches[0]);
+  e.preventDefault();
+}
+
+function handleTouchMove(e) {
+  if (!touchComp) return;
+  moveTouchGhost(e.touches[0]);
+  e.preventDefault();
+
+  // Highlight zone under finger
+  const touch = e.touches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const zone = el && el.closest('.drop-zone');
+  document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+  if (zone) zone.classList.add('drag-over');
+}
+
+function handleTouchEnd(e) {
+  ghost.style.display = 'none';
+  const touch = e.changedTouches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const zone = el && el.closest('.drop-zone');
+  document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+  if (zone) handleDrop(zone.dataset.comp);
+  touchComp = null;
+}
+
+function moveTouchGhost(touch) {
+  ghost.style.left = touch.clientX + 'px';
+  ghost.style.top = touch.clientY + 'px';
+}
+
+// ══════════════════════════════════════════
+//  MODULE 2 — QUIZ
+// ══════════════════════════════════════════
+let quiz = { idx: 0, score: 0, answered: false, questions: [] };
+
+function initQuiz() {
+  quiz.idx = 0;
+  quiz.score = 0;
+  quiz.answered = false;
+  quiz.questions = [...QUIZ_QUESTIONS].sort(() => Math.random() - 0.5);
+
+  document.getElementById('quiz-main').style.display = '';
+  document.getElementById('quiz-score').classList.remove('show');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quiz.questions[quiz.idx];
+  quiz.answered = false;
+
+  // Progress
+  document.getElementById('quiz-progress-label').textContent = `Question ${quiz.idx + 1} / ${quiz.questions.length}`;
+  document.getElementById('quiz-score-live').textContent = `Score : ${quiz.score} ⭐`;
+  document.getElementById('quiz-bar').style.width = (quiz.idx / quiz.questions.length * 100) + '%';
+
+  // Question
+  document.getElementById('q-num').textContent = `Question ${quiz.idx + 1}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  // Options
+  const optContainer = document.getElementById('q-options');
+  optContainer.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${opt}`;
+    btn.onclick = () => answerQuestion(i);
+    optContainer.appendChild(btn);
+  });
+
+  // Hide explanation + next
+  const expl = document.getElementById('q-explanation');
+  expl.className = 'quiz-explanation';
+  expl.textContent = '';
+  document.getElementById('btn-next').className = 'btn-next';
+}
+
+function answerQuestion(chosen) {
+  if (quiz.answered) return;
+  quiz.answered = true;
+
+  const q = quiz.questions[quiz.idx];
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === q.answer) btn.classList.add('correct');
+    else if (i === chosen) btn.classList.add('wrong');
+  });
+
+  if (chosen === q.answer) quiz.score++;
+
+  // Explanation
+  const expl = document.getElementById('q-explanation');
+  expl.textContent = q.expl;
+  expl.classList.add('show');
+
+  // Next button
+  const btnNext = document.getElementById('btn-next');
+  btnNext.textContent = quiz.idx < quiz.questions.length - 1 ? 'Question suivante →' : 'Voir mon score 🏆';
+  btnNext.classList.add('show');
+
+  document.getElementById('quiz-score-live').textContent = `Score : ${quiz.score} ⭐`;
+}
+
+function nextQuestion() {
+  quiz.idx++;
+  if (quiz.idx >= quiz.questions.length) {
+    showScore();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showScore() {
+  document.getElementById('quiz-main').style.display = 'none';
+  const scoreScreen = document.getElementById('quiz-score');
+  scoreScreen.classList.add('show');
+
+  const s = quiz.score;
+  const total = quiz.questions.length;
+  document.getElementById('score-num').textContent = s;
+  document.getElementById('quiz-bar').style.width = '100%';
+
+  let emoji, msg, sub, color;
+  if (s >= 9) {
+    emoji = '🏆'; msg = 'Félicitations !'; color = '#f59e0b';
+    sub = 'Tu es un expert des composants ! Tu peux maintenant monter ton propre ordinateur ! 🎉';
+  } else if (s >= 7) {
+    emoji = '⭐'; msg = 'Très bien !'; color = '#10b981';
+    sub = 'Tu maîtrises très bien les composants. Encore un petit effort et tu seras imbattable !';
+  } else if (s >= 5) {
+    emoji = '👍'; msg = 'Pas mal !'; color = '#00d4ff';
+    sub = 'Tu progresses ! Relis les fiches composants pour t\'améliorer.';
+  } else {
+    emoji = '💪'; msg = 'Continue !'; color = '#ff6b35';
+    sub = 'Ne te décourage pas ! Consulte les fiches composants et réessaie.';
+  }
+
+  document.getElementById('score-emoji').textContent = emoji;
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-msg').style.color = color;
+  document.getElementById('score-sub').textContent = sub;
+
+  // Animate circle
+  const pct = s / total;
+  document.getElementById('score-circle').style.background =
+    `conic-gradient(${color} 0deg, ${color} ${pct * 360}deg, var(--border) ${pct * 360}deg)`;
+
+  if (s >= 7) launchConfetti();
+}
+
+// ══════════════════════════════════════════
+//  MODULE 3 — FICHES
+// ══════════════════════════════════════════
+function buildInfoGrid() {
+  const grid = document.getElementById('info-grid');
+  Object.entries(COMPONENTS).forEach(([id, comp]) => {
+    const card = document.createElement('div');
+    card.className = 'info-card';
+    card.innerHTML = `
+      <div class="info-card-header">
+        <div class="info-emoji">${comp.icon}</div>
+        <div>
+          <h3>${comp.name}</h3>
+          <div class="info-abbr">${comp.abbr}</div>
+        </div>
+      </div>
+      <div class="info-role">${comp.role}</div>
+      <div class="info-analogy">${comp.analogy}</div>
+      <div class="info-location">📍 ${comp.location}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════
+//  CONFETTIS
+// ══════════════════════════════════════════
+function launchConfetti() {
+  const colors = ['#00d4ff','#ff6b35','#10b981','#f59e0b','#7c3aed','#fff'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.style.cssText = `
+      position:fixed; z-index:400; pointer-events:none;
+      width:${6 + Math.random()*8}px; height:${6 + Math.random()*8}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+      left:${Math.random()*100}vw; top:-20px;
+      animation: fall ${1.5 + Math.random()*2}s ease-in forwards;
+      animation-delay:${Math.random()*0.8}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+  const style = document.createElement('style');
+  style.textContent = `@keyframes fall {
+    to { transform: translateY(110vh) rotate(${Math.random()*720}deg); opacity:0; }
+  }`;
+  document.head.appendChild(style);
+}
+</script>
+</body>
+</html>
